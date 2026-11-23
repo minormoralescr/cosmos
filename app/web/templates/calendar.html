@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Calendario · Spa WhatsApp{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-4">Reservar cita</h1>
+<div class="bg-white rounded-lg shadow p-5 space-y-4">
+  <form hx-get="/calendar/slots" hx-target="#slots" hx-trigger="submit" class="space-y-3">
+    <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-3">
+      <label class="block">
+        <span class="text-sm text-slate-600">Terapeuta</span>
+        <select name="staff_id" class="w-full border rounded px-3 py-2 mt-1">
+          {% for s in staff_list %}<option value="{{ s.id }}">{{ s.name }}</option>{% endfor %}
+        </select>
+      </label>
+      <label class="block">
+        <span class="text-sm text-slate-600">Servicio</span>
+        <select name="service_id" class="w-full border rounded px-3 py-2 mt-1">
+          {% for s in services %}<option value="{{ s.id }}">{{ s.name }} ({{ s.duration_min }} min)</option>{% endfor %}
+        </select>
+      </label>
+      <label class="block">
+        <span class="text-sm text-slate-600">Fecha</span>
+        <input name="day" type="date" required class="w-full border rounded px-3 py-2 mt-1">
+      </label>
+      <label class="block">
+        <span class="text-sm text-slate-600">Teléfono cliente</span>
+        <input name="client_phone" type="tel" placeholder="+34600000000" required class="w-full border rounded px-3 py-2 mt-1">
+      </label>
+      <label class="block">
+        <span class="text-sm text-slate-600">Nombre cliente</span>
+        <input name="client_name" type="text" class="w-full border rounded px-3 py-2 mt-1">
+      </label>
+    </div>
+    <button class="bg-teal-600 text-white rounded px-4 py-2 hover:bg-teal-700">Ver slots disponibles</button>
+  </form>
+  <div id="slots" class="text-slate-400 text-sm">Completa el formulario y pulsa "Ver slots".</div>
+</div>
+{% endblock %}

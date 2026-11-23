@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spa WhatsApp — Demo</title>
+<style>
+  :root{
+    --teal:#0d9488; --teal-d:#0f766e; --teal-1:#ccfbf1; --teal-50:#f0fdfa;
+    --slate-50:#f8fafc; --slate-100:#f1f5f9; --slate-200:#e2e8f0;
+    --slate-400:#94a3b8; --slate-500:#64748b; --slate-600:#475569; --slate-700:#334155; --slate-800:#1e293b;
+    --red:#dc2626; --green:#16a34a; --amber:#d97706;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;color:var(--slate-800);background:var(--slate-50);-webkit-font-smoothing:antialiased}
+  .app-h{background:#fff;border-bottom:1px solid var(--slate-200);padding:10px 18px;display:flex;align-items:center;gap:18px;flex-wrap:wrap;position:sticky;top:0;z-index:20}
+  .brand{font-weight:700;font-size:16px;color:var(--teal);white-space:nowrap}
+  nav{display:flex;gap:4px;font-size:14px;flex-wrap:wrap}
+  nav button{padding:8px 13px;border-radius:7px;color:var(--slate-600);background:transparent;border:0;cursor:pointer;font:inherit;font-size:14px}
+  nav button.active{background:var(--slate-100);color:var(--teal-d);font-weight:600}
+  .uinfo{margin-left:auto;font-size:13px;color:var(--slate-500);display:flex;align-items:center;gap:12px}
+  .role{text-transform:uppercase;font-size:11px;background:var(--slate-100);padding:2px 7px;border-radius:5px;color:var(--slate-600)}
+  .logout{color:var(--teal);background:none;border:0;cursor:pointer;font:inherit;font-size:13px}
+  main{padding:22px 18px;max-width:1280px;margin:0 auto}
+  .view{display:none}
+  .view.active{display:block}
+  h1{font-size:22px;font-weight:700;margin:0 0 16px}
+  .card{background:#fff;border-radius:11px;box-shadow:0 1px 3px rgba(15,23,42,.06);padding:18px}
+  .cap-sh{color:var(--slate-500);font-size:12px;margin:0 0 12px}
+  /* Panel */
+  .grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+  .big{font-size:34px;font-weight:700;color:var(--teal)}
+  .cap{color:var(--slate-600);font-size:13px;margin-top:3px}
+  .nextlist{font-size:13px;color:var(--slate-700);margin:0;padding:0;list-style:none}
+  .nextlist li{padding:4px 0;border-bottom:1px dashed var(--slate-200)}
+  .nextlist li:last-child{border:0}
+  .cta{background:var(--teal);color:#fff;border-radius:11px;padding:18px;text-align:left;cursor:pointer;border:0;font:inherit}
+  .cta:hover{background:var(--teal-d)}
+  .cta .t{font-size:16px;font-weight:700}
+  .cta .s{color:var(--teal-1);font-size:13px;margin-top:2px}
+  /* Inbox */
+  .inbox{display:grid;grid-template-columns:380px 1fr;gap:16px;align-items:start}
+  .col-h{padding:11px 15px;border-bottom:1px solid var(--slate-200);font-weight:600;font-size:14px;display:flex;justify-content:space-between;align-items:center}
+  .pill{font-size:11px;background:var(--teal-1);color:var(--teal-d);padding:2px 8px;border-radius:20px}
+  .conv-list{list-style:none;margin:0;padding:0}
+  .conv{display:block;text-align:left;width:100%;border:0;background:#fff;border-bottom:1px solid var(--slate-100);padding:12px 15px;cursor:pointer;font:inherit}
+  .conv:hover{background:var(--slate-50)}
+  .conv.sel{background:var(--slate-50);box-shadow:inset 3px 0 0 var(--teal)}
+  .cn{font-weight:600;font-size:14px}
+  .cm{font-size:12px;color:var(--slate-500);margin-top:1px}
+  .ci{font-size:11.5px;color:var(--slate-400);margin-top:3px}
+  .badge{font-size:10.5px;padding:1px 6px;border-radius:5px;background:#fef3c7;color:var(--amber)}
+  .panel{background:#fff;border-radius:11px;box-shadow:0 1px 3px rgba(15,23,42,.06);display:flex;flex-direction:column;min-height:520px}
+  .panel-h{padding:14px 16px;border-bottom:1px solid var(--slate-200)}
+  .panel-h .n{font-weight:600}
+  .panel-h .m{font-size:12px;color:var(--slate-500)}
+  .msgs{padding:16px;background:var(--slate-50);flex:1;overflow-y:auto;max-height:440px;display:flex;flex-direction:column;gap:11px}
+  .row{display:flex}
+  .row.out{justify-content:flex-end}
+  .bub{max-width:74%;padding:9px 13px;border-radius:14px;font-size:13.5px;line-height:1.45}
+  .in-b{background:#fff;border:1px solid var(--slate-200)}
+  .out-b{background:var(--teal-1);color:var(--teal-d)}
+  .time{display:block;font-size:10px;color:var(--slate-400);margin-top:3px}
+  .row.out .time{text-align:right}
+  .sys{text-align:center;font-size:11px;color:var(--slate-500);background:#fff7ed;border:1px dashed #fed7aa;border-radius:8px;padding:7px;margin:2px 40px}
+  .reply{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--slate-200)}
+  .reply input{flex:1;border:1px solid var(--slate-200);border-radius:8px;padding:10px 13px;font:inherit;font-size:13.5px}
+  .btn{background:var(--teal);color:#fff;border:0;border-radius:8px;padding:10px 18px;font-weight:600;font-size:13.5px;cursor:pointer}
+  .btn:hover{background:var(--teal-d)}
+  .btn.gh{background:#fff;border:1px solid var(--slate-200);color:var(--slate-600)}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  /* Calendar */
+  .cform{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:16px}
+  .fld label{display:block;font-size:12px;color:var(--slate-600);margin-bottom:4px}
+  .fld select,.fld input{width:100%;border:1px solid var(--slate-200);border-radius:8px;padding:9px 11px;font:inherit;font-size:13.5px;background:#fff}
+  .slots-h{font-size:13px;color:var(--slate-600);margin-bottom:10px}
+  .slotgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:9px}
+  .slot{border:1px solid var(--slate-200);border-radius:8px;padding:9px 0;text-align:center;font-size:13.5px;background:#fff;cursor:pointer}
+  .slot:hover:not(.booked){border-color:var(--teal);background:var(--teal-50)}
+  .slot.booked{background:var(--slate-100);color:var(--slate-400);text-decoration:line-through;cursor:not-allowed}
+  .slot.sel{background:var(--teal);color:#fff;border-color:var(--teal)}
+  .legend{display:flex;gap:16px;font-size:12px;color:var(--slate-500);margin-top:14px;flex-wrap:wrap}
+  .lg{display:inline-flex;align-items:center;gap:6px}
+  .lg i{width:12px;height:12px;border-radius:3px;display:inline-block}
+  .cal-actions{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+  /* Citas table */
+  .wrap{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:13px;min-width:680px}
+  th{text-align:left;background:var(--slate-100);color:var(--slate-600);padding:9px 14px;font-weight:600;font-size:12px}
+  td{padding:11px 14px;border-bottom:1px solid var(--slate-100)}
+  tr:hover td{background:var(--slate-50)}
+  .st{font-size:11px;padding:2px 9px;border-radius:20px;white-space:nowrap}
+  .st.conf{background:var(--teal-1);color:var(--teal-d)}
+  .st.pend{background:#fef3c7;color:var(--amber)}
+  .st.canc{background:#fee2e2;color:var(--red)}
+  .cxl{color:var(--red);font-size:12px;cursor:pointer;background:none;border:0;font:inherit;text-decoration:underline}
+  .empty{color:var(--slate-400);text-align:center;padding:28px}
+  /* Agents */
+  .agents{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+  .ag{background:#fff;border-radius:11px;padding:16px;box-shadow:0 1px 3px rgba(15,23,42,.06)}
+  .ag .nm{font-weight:600;font-size:15px}
+  .ag .rl{font-size:12px;color:var(--slate-500)}
+  .ag .stt{font-size:12px;margin:8px 0;display:inline-flex;align-items:center;gap:6px}
+  .dot-i{width:9px;height:9px;border-radius:50%;display:inline-block}
+  .dot-i.on{background:var(--green)}.dot-i.off{background:var(--slate-400)}
+  .ag .stat{font-size:12px;color:var(--slate-600);margin:2px 0}
+  .toggle{margin-top:10px}
+  /* Toast */
+  #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--slate-800);color:#fff;padding:11px 18px;border-radius:8px;font-size:13px;opacity:0;pointer-events:none;transition:.25s;z-index:50}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  /* Login */
+  .login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#f0fdfa,#f1f5f9);padding:20px}
+  .login-card{background:#fff;border-radius:14px;box-shadow:0 12px 40px rgba(15,23,42,.18);padding:28px;width:100%;max-width:380px}
+  .login-card .brand{font-size:20px;margin-bottom:4px}
+  .login-card .sub{color:var(--slate-500);font-size:13px;margin-bottom:18px}
+  .login-card label{display:block;font-size:12px;color:var(--slate-600);margin:12px 0 4px}
+  .login-card input{width:100%;border:1px solid var(--slate-200);border-radius:8px;padding:10px 12px;font:inherit;font-size:14px}
+  .login-card .btn{width:100%;margin-top:18px}
+  .login-card .err{color:var(--red);font-size:12px;margin-top:10px;min-height:16px}
+  .login-card .demo{margin-top:16px;background:var(--slate-50);border:1px dashed var(--slate-200);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--slate-600);line-height:1.7}
+  .login-card .demo b{color:var(--slate-700)}
+  @media (max-width:720px){
+    .inbox{grid-template-columns:1fr}
+    .panel{min-height:auto}
+    .msgs{max-height:340px}
+    main{padding:16px 12px}
+  }
+</style>
+</head>
+<body>
+
+<div id="login-screen" class="login-wrap">
+  <form class="login-card" onsubmit="attemptLogin();return false">
+    <div class="brand">🧖 Spa WhatsApp</div>
+    <div class="sub">Acceso al panel del operador</div>
+    <label for="login-email">Email</label>
+    <input id="login-email" type="email" autocomplete="off" value="ana@spa.example">
+    <label for="login-pass">Contraseña</label>
+    <input id="login-pass" type="password" placeholder="demo123">
+    <button class="btn" type="submit">Entrar</button>
+    <div class="err" id="login-err"></div>
+    <div class="demo">Credenciales demo:<br>
+      <b>ana@spa.example</b> / <b>demo123</b> — Recepcionista<br>
+      <b>admin@spa.example</b> / <b>admin</b> — Administrador</div>
+  </form>
+</div>
+
+<div id="app" style="display:none">
+
+<header class="app-h">
+  <div class="brand">🧖 Spa WhatsApp</div>
+  <nav id="nav">
+    <button data-view="panel" class="active">Panel</button>
+    <button data-view="inbox">Bandeja</button>
+    <button data-view="calendar">Calendario</button>
+    <button data-view="appointments">Citas</button>
+    <button data-view="agents">Agentes</button>
+  </nav>
+  <div class="uinfo">
+    <span><span id="user-name">Ana Ruiz</span> · <span class="role" id="user-role">Recepcionista</span></span>
+    <button class="logout" onclick="logout()">Salir</button>
+  </div>
+</header>
+
+<main>
+
+<!-- PANEL -->
+<section id="view-panel" class="view active">
+  <h1>Panel</h1>
+  <div class="grid3">
+    <div class="card"><div class="big" id="stat-waiting">0</div><div class="cap">conversaciones esperando operador</div></div>
+    <div class="card"><div class="big" id="stat-today">0</div><div class="cap">citas hoy</div></div>
+    <div class="card">
+      <div class="cap-sh">Próximas citas</div>
+      <ul class="nextlist" id="next-list"></ul>
+    </div>
+    <button class="cta" onclick="go('calendar')"><div class="t">+ Reservar cita</div><div class="s">Ver slots disponibles</div></button>
+  </div>
+</section>
+
+<!-- BANDEJA -->
+<section id="view-inbox" class="view">
+  <h1>Bandeja de derivación</h1>
+  <div class="inbox">
+    <div class="card" style="padding:0">
+      <div class="col-h"><span>Esperando operador</span><span class="pill" id="inbox-count">0</span></div>
+      <ul class="conv-list" id="conv-list"></ul>
+    </div>
+    <div class="panel" id="conv-detail"></div>
+  </div>
+</section>
+
+<!-- CALENDARIO -->
+<section id="view-calendar" class="view">
+  <h1>Reservar cita</h1>
+  <div class="card">
+    <div class="cform">
+      <div class="fld"><label>Terapeuta</label><select id="f-ther"><option>Luis Gómez</option><option>Marta Ruiz</option></select></div>
+      <div class="fld"><label>Servicio</label><select id="f-svc"><option>Masaje Relajante (60 min)</option><option>Facial Detox (45 min)</option><option>Masaje Piedras Calientes (75 min)</option><option>Aromaterapia (45 min)</option></select></div>
+      <div class="fld"><label>Fecha</label><input type="date" id="f-date"></div>
+      <div class="fld"><label>Teléfono cliente</label><input id="f-phone" placeholder="+34 6.."></div>
+      <div class="fld"><label>Nombre cliente</label><input id="f-name" placeholder="Nombre"></div>
+    </div>
+    <button class="btn" onclick="renderSlots()">Ver slots disponibles</button>
+    <div id="slots-area" style="margin-top:16px"></div>
+  </div>
+</section>
+
+<!-- CITAS -->
+<section id="view-appointments" class="view">
+  <h1>Citas</h1>
+  <div class="card" style="padding:0">
+    <div class="wrap">
+      <table>
+        <thead><tr><th>Fecha</th><th>Hora</th><th>Cliente</th><th>Servicio</th><th>Terapeuta</th><th>Estado</th><th></th></tr></thead>
+        <tbody id="appt-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- AGENTES -->
+<section id="view-agents" class="view">
+  <h1>Agentes</h1>
+  <div class="agents" id="agents-grid"></div>
+</section>
+
+</main>
+
+</div><!-- /#app -->
+
+<div id="toast"></div>
+
+<script>
+"use strict";
+const SLOTS = ["09:00","10:00","11:00","12:00","13:00","14:00","16:00","17:00","18:30","19:30","20:00","20:30"];
+const todayISO = "2026-11-23";
+
+const state = {
+  view: "panel",
+  selectedConvId: 1,
+  selectedSlot: null,
+  bookedSlots: new Set(["09:00","12:00","14:00","20:00"]),
+  conversations: [
+    {id:1, name:"María García", phone:"+34 611 122 233", time:"23/11 14:32", intent:"reservar", conf:0.42, status:"waiting",
+      messages:[
+        {dir:"in", text:"Hola, quería reservar un masaje para esta semana", time:"14:30"},
+        {dir:"in", text:"¿Tienen hueco el viernes por la tarde?", time:"14:31"},
+        {dir:"out", text:"¡Hola María! Soy el asistente del spa. El viernes tenemos Masaje Relajante 60′ a las 17:00 o 18:30. ¿Cuál te encaja?", time:"14:31", by:"IA"},
+        {dir:"in", text:"Prefiero que me atienda una persona para decidir", time:"14:32"},
+        {dir:"sys", text:"↳ Derivado a operador · confianza IA 0.42 (umbral 0,6)"}
+      ]},
+    {id:2, name:"Juan Pérez", phone:"+34 622 233 344", time:"23/11 14:15", intent:"reprogramar", conf:0.38, status:"waiting",
+      messages:[
+        {dir:"in", text:"Tengo una cita mañana y quería cambiarla de hora", time:"14:14"},
+        {dir:"out", text:"Claro, Juan. Tu cita es 24/11 a las 10:00 (Masaje Piedras). ¿A qué hora te vendría mejor?", time:"14:15", by:"IA"},
+        {dir:"sys", text:"↳ Derivado a operador · confianza IA 0.38 (umbral 0,6)"}
+      ]},
+    {id:3, name:"Lucía Fernández", phone:"+34 633 344 556", time:"23/11 13:50", intent:"faq", conf:0.35, status:"waiting",
+      messages:[
+        {dir:"in", text:"¿Cuánto cuesta el facial detox?", time:"13:49"},
+        {dir:"out", text:"El Facial Detox de 45 min cuesta 55 €. ¿Quieres reservar?", time:"13:50", by:"IA"},
+        {dir:"in", text:"Mejor que me lo explique alguien", time:"13:50"},
+        {dir:"sys", text:"↳ Derivado a operador · confianza IA 0.35 (umbral 0,6)"}
+      ]},
+    {id:4, name:"Carlos Ruiz", phone:"+34 644 455 667", time:"23/11 13:20", intent:"cancelar", conf:0.41, status:"waiting",
+      messages:[
+        {dir:"in", text:"No voy a poder ir mañana a las 12:00, canceladla", time:"13:19"},
+        {dir:"sys", text:"↳ Derivado a operador · confianza IA 0.41 (umbral 0,6)"}
+      ]}
+  ],
+  appointments: [
+    {id:101, date:"2026-11-23", time:"16:00", name:"María García", phone:"+34 611 122 233", service:"Masaje Relajante (60 min)", therapist:"Luis Gómez", status:"confirmed"},
+    {id:102, date:"2026-11-23", time:"17:30", name:"Juan Pérez", phone:"+34 622 233 344", service:"Facial Detox (45 min)", therapist:"Luis Gómez", status:"confirmed"},
+    {id:103, date:"2026-11-24", time:"10:00", name:"Lucía Fernández", phone:"+34 633 344 556", service:"Masaje Piedras Calientes (75 min)", therapist:"Marta Ruiz", status:"confirmed"},
+    {id:104, date:"2026-11-24", time:"12:00", name:"Carlos Ruiz", phone:"+34 644 455 667", service:"Aromaterapia (45 min)", therapist:"Marta Ruiz", status:"pending"}
+  ],
+  agents: [
+    {id:"ia", name:"Asistente IA", role:"Agente conversacional", online:true, stats:[["Conversaciones hoy","38"],["Confianza media","0,71"],["Derivaciones","12"]]},
+    {id:"ana", name:"Ana Ruiz", role:"Recepcionista", online:true, stats:[["Derivaciones hoy","12"],["Citas gestionadas","8"]]},
+    {id:"luis", name:"Luis Gómez", role:"Terapeuta", online:true, stats:[["Citas hoy","6"],["Servicios","Masaje, Piedras"]]},
+    {id:"marta", name:"Marta Ruiz", role:"Terapeuta", online:false, stats:[["Citas hoy","4"],["Servicios","Facial, Aromaterapia"]]}
+  ]
+};
+
+/* ---------- utils ---------- */
+function $(sel,root){return (root||document).querySelector(sel)}
+function el(tag,cls,html){const e=document.createElement(tag); if(cls)e.className=cls; if(html!=null)e.innerHTML=html; return e}
+function nowHM(){return new Date().toLocaleTimeString("es-ES",{hour:"2-digit",minute:"2-digit"})}
+let toastT;
+function toast(msg){const t=$("#toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("show"),2200)}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+
+/* ---------- persistence + auth ---------- */
+const STORE_KEY="spa-demo-state-v1";
+const SESSION_KEY="spa-demo-session-v1";
+const DEMO_USERS=[
+  {email:"ana@spa.example",pass:"demo123",name:"Ana Ruiz",role:"Recepcionista"},
+  {email:"admin@spa.example",pass:"admin",name:"Gestor",role:"Administrador"}
+];
+let currentUser=null;
+
+function saveState(){
+  const data={conversations:state.conversations,appointments:state.appointments,bookedSlots:[...state.bookedSlots],agents:state.agents};
+  try{localStorage.setItem(STORE_KEY,JSON.stringify(data))}catch(e){}
+}
+function loadState(){
+  try{
+    const raw=localStorage.getItem(STORE_KEY); if(!raw) return false;
+    const d=JSON.parse(raw); if(!d||!d.conversations) return false;
+    state.conversations=d.conversations; state.appointments=d.appointments;
+    state.bookedSlots=new Set(d.bookedSlots||[]); state.agents=d.agents;
+    return true;
+  }catch(e){return false}
+}
+function loadSession(){try{const raw=localStorage.getItem(SESSION_KEY); return raw?JSON.parse(raw):null}catch(e){return null}}
+function saveSession(u){try{localStorage.setItem(SESSION_KEY,JSON.stringify(u))}catch(e){}}
+function clearSession(){try{localStorage.removeItem(SESSION_KEY)}catch(e){}}
+
+function attemptLogin(){
+  const email=($("#login-email").value||"").trim().toLowerCase();
+  const pass=$("#login-pass").value;
+  const u=DEMO_USERS.find(x=>x.email.toLowerCase()===email && x.pass===pass);
+  const err=$("#login-err");
+  if(!u){err.textContent="Credenciales incorrectas. Usa las de demo (más abajo)."; return}
+  currentUser={name:u.name,role:u.role,email:u.email};
+  saveSession(currentUser);
+  showApp();
+}
+function logout(){currentUser=null; clearSession(); showLogin()}
+function showApp(){
+  $("#login-screen").style.display="none";
+  $("#app").style.display="block";
+  $("#user-name").textContent=currentUser?currentUser.name:"Ana Ruiz";
+  $("#user-role").textContent=currentUser?currentUser.role:"Recepcionista";
+  state.view="panel";
+  state.selectedConvId=state.conversations[0]?state.conversations[0].id:1;
+  go("panel");
+}
+function showLogin(){
+  $("#app").style.display="none";
+  $("#login-screen").style.display="flex";
+  $("#login-pass").value="";
+  $("#login-err").textContent="";
+}
+
+/* ---------- routing ---------- */
+function go(view){
+  state.view=view;
+  document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("active", b.dataset.view===view));
+  document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+  $("#view-"+view).classList.add("active");
+  if(view==="panel") renderPanel();
+  if(view==="inbox") renderInbox();
+  if(view==="calendar"){ state.selectedSlot=null; $("#slots-area").innerHTML=""; }
+  if(view==="appointments") renderAppointments();
+  if(view==="agents") renderAgents();
+  window.scrollTo(0,0);
+}
+document.querySelectorAll("#nav button").forEach(b=>b.addEventListener("click",()=>go(b.dataset.view)));
+
+/* ---------- Panel ---------- */
+function renderPanel(){
+  const waiting=state.conversations.filter(c=>c.status==="waiting").length;
+  const today=state.appointments.filter(a=>a.date===todayISO && a.status!=="cancelled").length;
+  $("#stat-waiting").textContent=waiting;
+  $("#stat-today").textContent=today;
+  const next=[...state.appointments].filter(a=>a.status!=="cancelled").sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time)).slice(0,4);
+  const fmt=d=>{const[p,y]=d.split("-"); return `${p}/${y.slice(2)}`}; // MM/DD
+  $("#next-list").innerHTML=next.map(a=>`<li>${fmt(a.date)} ${a.time} · ${esc(a.name)} · ${esc(a.service.split(" (")[0])}</li>`).join("")||'<li class="empty">Sin próximas citas</li>';
+}
+
+/* ---------- Inbox ---------- */
+function renderInbox(){
+  $("#inbox-count").textContent=state.conversations.filter(c=>c.status==="waiting").length;
+  const list=$("#conv-list");
+  list.innerHTML=state.conversations.map(c=>`
+    <li><button class="conv ${c.id===state.selectedConvId?"sel":""}" data-id="${c.id}">
+      <div class="cn">${esc(c.name)}</div>
+      <div class="cm">${esc(c.phone)} · ${esc(c.time)}</div>
+      <div class="ci">intención: ${esc(c.intent)} · conf ${c.conf.toFixed(2)} ${c.status==="waiting"?'<span class="badge">IA → humano</span>':''}</div>
+    </button></li>`).join("");
+  list.querySelectorAll(".conv").forEach(b=>b.addEventListener("click",()=>{state.selectedConvId=+b.dataset.id; renderInbox()}));
+  renderConvDetail();
+}
+function renderConvDetail(){
+  const c=state.conversations.find(x=>x.id===state.selectedConvId);
+  const det=$("#conv-detail");
+  if(!c){det.innerHTML='<div class="empty">Selecciona una conversación</div>';return}
+  const msgs=c.messages.map(m=>{
+    if(m.dir==="sys") return `<div class="sys">${esc(m.text)}</div>`;
+    return `<div class="row ${m.dir==="out"?"out":""}"><div class="bub ${m.dir==="out"?"out-b":"in-b"}">${esc(m.text)}<span class="time">${esc(m.time||"")}${m.by?" · "+esc(m.by):""}</span></div></div>`;
+  }).join("");
+  det.innerHTML=`
+    <div class="panel-h"><div class="n">${esc(c.name)}</div><div class="m">${esc(c.phone)} · estado: ${c.status==="waiting"?"esperando operador":"atendida"}</div></div>
+    <div class="msgs" id="msgs-box">${msgs}</div>
+    <form class="reply" id="reply-form">
+      <input id="reply-input" placeholder="Escribe tu respuesta…" autocomplete="off">
+      <button class="btn" type="submit">Enviar</button>
+    </form>`;
+  const box=$("#msgs-box"); if(box) box.scrollTop=box.scrollHeight;
+  const form=$("#reply-form");
+  form.addEventListener("submit",e=>{e.preventDefault(); sendReply(c.id)});
+}
+function sendReply(id){
+  const c=state.conversations.find(x=>x.id===id);
+  const input=$("#reply-input");
+  const txt=input.value.trim();
+  if(!txt) return;
+  c.messages.push({dir:"out", text:txt, time:nowHM(), by:"operador"});
+  c.status="attended";
+  input.value="";
+  renderConvDetail();
+  renderInbox();
+  saveState();
+  // respuesta automática simulada del cliente
+  const replies=["Vale, perfecto. Gracias 🙂","¿Me lo confirmas por aquí?","Genial, allí estaré.","Muchas gracias, un saludo."];
+  setTimeout(()=>{
+    c.messages.push({dir:"in", text:replies[Math.floor(Math.random()*replies.length)], time:nowHM()});
+    saveState();
+    if(state.view==="inbox" && state.selectedConvId===c.id) renderConvDetail();
+  },1500);
+}
+
+/* ---------- Calendar ---------- */
+function renderSlots(){
+  const ther=$("#f-ther").value, svc=$("#f-svc").value, date=$("#f-date").value||todayISO;
+  const area=$("#slots-area");
+  state.selectedSlot=null;
+  const grid=el("div","slotgrid");
+  SLOTS.forEach(s=>{
+    const booked=state.bookedSlots.has(s);
+    const cell=el("div","slot"+(booked?" booked":""),s);
+    if(!booked){
+      cell.addEventListener("click",()=>{
+        state.selectedSlot=s;
+        grid.querySelectorAll(".slot").forEach(x=>x.classList.remove("sel"));
+        cell.classList.add("sel");
+      });
+    }
+    grid.appendChild(cell);
+  });
+  const wrap=el("div","card"); wrap.style.padding="16px";
+  const dd=new Date(date+"T00:00").toLocaleDateString("es-ES",{weekday:"long",day:"2-digit",month:"2-digit",year:"numeric"});
+  wrap.appendChild(el("div","slots-h",`${esc(dd)} · ${esc(ther)} · ${esc(svc)}`));
+  wrap.appendChild(grid);
+  wrap.appendChild(el("div","legend",
+    `<span class="lg"><i style="background:#fff;border:1px solid var(--slate-200)"></i> libre</span>
+     <span class="lg"><i style="background:var(--slate-100)"></i> ocupado</span>
+     <span class="lg"><i style="background:var(--teal)"></i> seleccionado</span>`));
+  const act=el("div","cal-actions");
+  const btn=el("button","btn","Confirmar reserva");
+  btn.addEventListener("click",confirmReservation);
+  act.appendChild(btn);
+  wrap.appendChild(act);
+  area.innerHTML=""; area.appendChild(wrap);
+}
+function confirmReservation(){
+  const slot=state.selectedSlot;
+  if(!slot){toast("Selecciona un slot libre");return}
+  const name=$("#f-name").value.trim(), phone=$("#f-phone").value.trim();
+  if(!name||!phone){toast("Falta nombre o teléfono del cliente");return}
+  const date=$("#f-date").value||todayISO;
+  const appt={id:Date.now(), date, time:slot, name, phone, service:$("#f-svc").value, therapist:$("#f-ther").value, status:"confirmed"};
+  state.appointments.push(appt);
+  state.bookedSlots.add(slot);
+  state.selectedSlot=null;
+  saveState();
+  toast(`Cita reservada: ${name} · ${slot}`);
+  setTimeout(()=>go("appointments"),500);
+}
+
+/* ---------- Appointments ---------- */
+function renderAppointments(){
+  const tb=$("#appt-tbody");
+  const rows=[...state.appointments].sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+  if(!rows.length){tb.innerHTML='<tr><td colspan="7" class="empty">No hay citas</td></tr>';return}
+  const stTxt={confirmed:["conf","Confirmada"],pending:["pend","Pendiente"],cancelled:["canc","Cancelada"]};
+  tb.innerHTML=rows.map(a=>{
+    const[cls,txt]=stTxt[a.status];
+    const fmt=a.date.split("-").slice(1).join("/")+"/"+a.date.slice(0,4);
+    const canCell=a.status==="cancelled"?"":`<button class="cxl" data-id="${a.id}">Cancelar</button>`;
+    return `<tr>
+      <td>${fmt}</td><td>${esc(a.time)}</td><td>${esc(a.name)}</td>
+      <td>${esc(a.service)}</td><td>${esc(a.therapist)}</td>
+      <td><span class="st ${cls}">${txt}</span></td>
+      <td>${canCell}</td></tr>`;
+  }).join("");
+  tb.querySelectorAll(".cxl").forEach(b=>b.addEventListener("click",()=>{
+    const id=+b.dataset.id;
+    if(confirm("¿Cancelar esta cita?")){
+      const a=state.appointments.find(x=>x.id===id);
+      a.status="cancelled";
+      toast(`Cita cancelada: ${a.name} · ${a.time}`);
+      renderAppointments();
+      saveState();
+    }
+  }));
+}
+
+/* ---------- Agents ---------- */
+function renderAgents(){
+  const grid=$("#agents-grid");
+  grid.innerHTML="";
+  state.agents.forEach(a=>{
+    const card=el("div","ag");
+    card.appendChild(el("div","nm",esc(a.name)));
+    card.appendChild(el("div","rl",esc(a.role)));
+    card.appendChild(el("div","stt",`<i class="dot-i ${a.online?"on":"off"}"></i> ${a.online?"En línea":"Desconectado"}`));
+    a.stats.forEach(([k,v])=>card.appendChild(el("div","stat",`<b>${esc(v)}</b> · ${esc(k)}`)));
+    const t=el("button","btn gh toggle", a.online?"Marcar descanso":"Volver en línea");
+    t.addEventListener("click",()=>{a.online=!a.online; saveState(); renderAgents(); toast(`${a.name}: ${a.online?"en línea":"desconectado"}`)});
+    card.appendChild(t);
+    grid.appendChild(card);
+  });
+}
+
+/* ---------- init ---------- */
+(function init(){
+  $("#f-date").value=todayISO;
+  if(!loadState()){ saveState(); }   // semilla inicial -> persistir
+  const sess=loadSession();
+  if(sess){ currentUser=sess; showApp(); }
+  else { showLogin(); }
+})();
+</script>
+</body>
+</html>

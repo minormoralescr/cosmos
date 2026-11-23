@@ -1,0 +1,15 @@
+{% if conv %}
+<div class="space-y-3">
+  <div>
+    <div class="font-semibold">{{ client.name if client else '—' }}</div>
+    <div class="text-xs text-slate-500">{{ client.phone if client else '' }} · estado: {{ conv.status.value }}</div>
+  </div>
+  <div id="messages" class="border rounded p-3 bg-slate-50 max-h-96 overflow-y-auto space-y-2">
+    {% include "_messages.html" %}
+  </div>
+  <form hx-post="/inbox/{{ conv.id }}/reply" hx-target="#messages" hx-swap="innerHTML" class="flex gap-2">
+    <input name="body" required placeholder="Escribe tu respuesta…" class="flex-1 border rounded px-3 py-2">
+    <button class="bg-teal-600 text-white rounded px-4 py-2 hover:bg-teal-700">Enviar</button>
+  </form>
+</div>
+{% endif %}

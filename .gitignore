@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.tox/
+*.egg-info/
+build/
+dist/
+
+# Entornos virtuales
+.venv/
+venv/
+env/
+
+# Secretos / variables de entorno (mantén .env.example trackeado)
+.env
+.env.local
+.env.*.local
+
+# OS / editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs y DBs locales
+*.log
+*.sqlite3
+*.db
+
+# Node / assets web
+node_modules/
+
+# Playwright
+/tmp/render/

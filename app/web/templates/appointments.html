@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Citas · Spa WhatsApp{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-4">Próximas citas</h1>
+<div class="bg-white rounded-lg shadow overflow-x-auto">
+  <table class="w-full text-sm">
+    <thead class="bg-slate-100 text-slate-600">
+      <tr>
+        <th class="text-left px-4 py-2">Fecha</th>
+        <th class="text-left px-4 py-2">Cliente</th>
+        <th class="text-left px-4 py-2">Servicio</th>
+        <th class="text-left px-4 py-2">Terapeuta</th>
+        <th class="text-left px-4 py-2">Estado</th>
+        <th class="px-4 py-2"></th>
+      </tr>
+    </thead>
+    <tbody class="divide-y">
+      {% for a in appointments %}
+      <tr id="appt-{{ a.id }}">
+        <td class="px-4 py-2 whitespace-nowrap">{{ a.starts_at.strftime('%d/%m/%Y %H:%M') }}</td>
+        <td class="px-4 py-2">{{ a.client.name }}</td>
+        <td class="px-4 py-2">{{ a.service.name }}</td>
+        <td class="px-4 py-2">{{ a.staff.name }}</td>
+        <td class="px-4 py-2 capitalize">{{ a.status.value }}</td>
+        <td class="px-4 py-2">
+          <form hx-post="/appointments/{{ a.id }}/cancel" hx-target="#appt-{{ a.id }}" hx-swap="outerHTML" hx-confirm="¿Cancelar esta cita?">
+            <button class="text-red-600 hover:underline text-xs">Cancelar</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6" class="px-4 py-6 text-center text-slate-400">Sin citas próximas</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

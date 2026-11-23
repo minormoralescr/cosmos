@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Spa WhatsApp{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen">
+  <header class="bg-white border-b sticky top-0 z-10">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center gap-x-4 gap-y-2 justify-between">
+      <a href="/dashboard" class="font-bold text-lg text-teal-600">🧖 Spa WhatsApp</a>
+      {% if user %}
+      <nav class="flex flex-wrap gap-1 text-sm">
+        <a href="/dashboard" class="px-3 py-2 rounded hover:bg-slate-100">Panel</a>
+        <a href="/inbox" class="px-3 py-2 rounded hover:bg-slate-100">Bandeja</a>
+        <a href="/calendar" class="px-3 py-2 rounded hover:bg-slate-100">Calendario</a>
+        <a href="/appointments" class="px-3 py-2 rounded hover:bg-slate-100">Citas</a>
+        {% if user.role.value == 'admin' %}<a href="/agents" class="px-3 py-2 rounded hover:bg-slate-100">Agentes</a>{% endif %}
+      </nav>
+      <div class="text-sm text-slate-500 flex items-center gap-3">
+        <span>{{ user.full_name }} · <span class="uppercase">{{ user.role.value }}</span></span>
+        <a href="/logout" class="text-teal-600 hover:underline">Salir</a>
+      </div>
+      {% endif %}
+    </div>
+  </header>
+  <main class="max-w-6xl mx-auto px-4 py-6">
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

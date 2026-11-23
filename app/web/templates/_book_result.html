@@ -1,0 +1,7 @@
+{% if error %}
+  <div class="text-red-600 text-sm bg-red-50 border border-red-200 rounded px-3 py-2">{{ error }}</div>
+{% elif success %}
+  <div class="text-green-700 text-sm bg-green-50 border border-green-200 rounded px-3 py-2">
+    ✅ Cita reservada para {{ appt.client.name }} el {{ appt.starts_at.strftime('%d/%m/%Y %H:%M') }}.
+  </div>
+{% endif %}

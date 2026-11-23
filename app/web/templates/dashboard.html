@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Panel · Spa WhatsApp{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-4">Panel</h1>
+<div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+  <a href="/inbox" class="bg-white rounded-lg shadow p-5 hover:shadow-md transition">
+    <div class="text-3xl font-bold text-teal-600">{{ awaiting }}</div>
+    <div class="text-slate-600 text-sm mt-1">conversaciones esperando operador</div>
+  </a>
+  <div class="bg-white rounded-lg shadow p-5">
+    <div class="text-sm text-slate-500 mb-2">Próximas citas</div>
+    {% if upcoming %}
+    <ul class="text-sm space-y-1">
+      {% for a in upcoming %}
+      <li>{{ a.starts_at.strftime('%d/%m %H:%M') }} · {{ a.client.name }} · {{ a.service.name }}</li>
+      {% endfor %}
+    </ul>
+    {% else %}<p class="text-sm text-slate-400">Sin citas próximas</p>{% endif %}
+  </div>
+  <a href="/calendar" class="bg-teal-600 text-white rounded-lg shadow p-5 hover:bg-teal-700 transition flex flex-col justify-center">
+    <div class="text-lg font-bold">+ Reservar cita</div>
+    <div class="text-teal-100 text-sm">Ver slots disponibles</div>
+  </a>
+</div>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Agentes · Spa WhatsApp{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-4">Agentes</h1>
+<div class="bg-white rounded-lg shadow overflow-x-auto">
+  <table class="w-full text-sm">
+    <thead class="bg-slate-100 text-slate-600">
+      <tr>
+        <th class="text-left px-4 py-2">ID</th>
+        <th class="text-left px-4 py-2">Nombre</th>
+        <th class="text-left px-4 py-2">Tipo</th>
+        <th class="text-left px-4 py-2">Activo</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y">
+      {% for a in agents %}
+      <tr>
+        <td class="px-4 py-2">{{ a.id }}</td>
+        <td class="px-4 py-2">
+          {{ a.name }}
+          {% if ai_agent and a.id == ai_agent.id %}<span class="text-xs text-teal-600">(IA actual)</span>{% endif %}
+        </td>
+        <td class="px-4 py-2 capitalize">{{ a.type.value }}</td>
+        <td class="px-4 py-2">{{ '✅' if a.is_active else '⛔' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

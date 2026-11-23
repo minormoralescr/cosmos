@@ -1,0 +1,35 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: spa_postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-spa}
+      POSTGRES_USER: ${POSTGRES_USER:-spa}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-spa_secret}
+    ports:
+      - "5432:5432"
+    volumes:
+      - spa_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-spa} -d ${POSTGRES_DB:-spa}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  app:
+    build: .
+    container_name: spa_app
+    env_file: .env
+    environment:
+      # Dentro de compose el host de Postgres es el servicio "postgres", no localhost.
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-spa}:${POSTGRES_PASSWORD:-spa_secret}@postgres:5432/${POSTGRES_DB:-spa}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+volumes:
+  spa_pgdata:

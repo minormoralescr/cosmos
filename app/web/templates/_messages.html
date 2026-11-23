@@ -1,0 +1,12 @@
+{% if messages %}
+  {% for m in messages %}
+  <div class="{% if m.direction.value == 'outbound' %}text-right{% endif %}">
+    <span class="inline-block {% if m.direction.value == 'outbound' %}bg-teal-100 text-teal-900{% else %}bg-white border{% endif %} rounded px-3 py-2 text-sm max-w-[80%]">
+      {{ m.body }}
+      <span class="block text-[10px] text-slate-400 mt-1">{{ m.created_at.strftime('%H:%M') }}</span>
+    </span>
+  </div>
+  {% endfor %}
+{% else %}
+  <p class="text-slate-400 text-sm">Sin mensajes</p>
+{% endif %}

@@ -1,0 +1,19 @@
+{% if error %}
+  <div class="text-red-600 text-sm">{{ error }}</div>
+{% elif not slots %}
+  <div class="text-slate-400 text-sm">No hay slots libres para esa combinación.</div>
+{% else %}
+  <div class="flex flex-wrap gap-2">
+    {% for s in slots %}
+    <form hx-post="/calendar/book" hx-target="#book-result" class="inline">
+      <input type="hidden" name="staff_id" value="{{ staff_id }}">
+      <input type="hidden" name="service_id" value="{{ service_id }}">
+      <input type="hidden" name="starts_at" value="{{ s.isoformat() }}">
+      <input type="hidden" name="client_phone" value="{{ client_phone }}">
+      <input type="hidden" name="client_name" value="{{ client_name }}">
+      <button class="border rounded px-3 py-2 text-sm hover:bg-teal-50 hover:border-teal-400">{{ s.strftime('%H:%M') }}</button>
+    </form>
+    {% endfor %}
+  </div>
+  <div id="book-result" class="mt-3"></div>
+{% endif %}

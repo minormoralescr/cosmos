@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Bandeja · Spa WhatsApp{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-4">Bandeja de derivación</h1>
+<div class="grid lg:grid-cols-2 gap-4">
+  <div class="bg-white rounded-lg shadow overflow-hidden">
+    <div class="px-4 py-3 border-b font-semibold">Esperando operador</div>
+    {% if conversations %}
+    <ul class="divide-y">
+      {% for c in conversations %}
+      <li>
+        <button hx-get="/inbox/{{ c.id }}" hx-target="#detail" class="w-full text-left px-4 py-3 hover:bg-slate-50">
+          <div class="font-medium">{{ c.client.name }}</div>
+          <div class="text-xs text-slate-500">{{ c.client.phone }} · {{ c.updated_at.strftime('%d/%m %H:%M') }}</div>
+          <div class="text-xs text-slate-400">intención: {{ c.last_intent or '—' }} · conf {{ '%.2f'|format(c.ai_confidence or 0) }}</div>
+        </button>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}<div class="p-4 text-slate-400 text-sm">Sin conversaciones pendientes 🎉</div>{% endif %}
+  </div>
+  <div id="detail" class="bg-white rounded-lg shadow p-4 text-slate-400 text-sm">
+    Selecciona una conversación para ver el detalle.
+  </div>
+</div>
+{% endblock %}
